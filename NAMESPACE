@@ -1,0 +1,4 @@
+exportPattern("^[[:alpha:]]+")
+
+#useDynLib("HARLEM", Interp, tmleStep, initQ, initT, Norm)
+useDynLib("HARLEM")
