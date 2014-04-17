@@ -1,12 +1,11 @@
 #include <stdlib.h> 
-#include <stdio.h> 
-#include<math.h>
+#include <math.h>
+
+#include "harlem.h"
 
 
 
-void Norm(double *a_normC, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Fun);
-void Interp(double *a_x,double *a_y, int *a_n, double *a_Val, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Fun);
-
+/// Computes the normalizing constant of a function by linear interpolation
 void Norm(double *a_normC, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Fun){
 
   *a_normC=0.0;
@@ -20,14 +19,6 @@ void Norm(double *a_normC, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_n
 	  double phi10=a_Fun[i+*a_nv*(j+1)];
 	  double phi01=a_Fun[i+1+*a_nv*j];
 	  double phi11=a_Fun[i+1+*a_nv*(j+1)];
-	  
-	  /*
-	  double psi00=a_Fun[i+1+*a_nv*j];
-	  double psi01=a_Fun[i+1+*a_nv*(j+1)];
-	  double psi10=a_Fun[i+*a_nv*j];
-	  double psi11=a_Fun[i+1+*a_nv*(j+1)];
-	  */
-
 
 	  *a_normC+=(a_xGrid[j+1]-a_xGrid[j])*(a_vGrid[i+1]-a_vGrid[i])*((phi00+phi01+phi11)/3+(phi00+phi10+phi11)/3)/2;
 
@@ -36,7 +27,7 @@ void Norm(double *a_normC, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_n
 }
 
 
-
+/// linear interpolation
 void Interp(double *a_x,double *a_y, int *a_n, double *a_Val, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Fun){
 
 
@@ -46,37 +37,8 @@ void Interp(double *a_x,double *a_y, int *a_n, double *a_Val, double *a_xGrid, d
       int i=0;int i0;
       int found=0;
 
-
-      /*
-	int up=a_n-1;
-	int low=0;
-	int i = ceil((up+low)/2);
-	while(found==0&&i<*a_nv-1)
-	{
-	
-	if(a_Stimes[i]>a_val)
-	{
-	if(a_Stimes[i-1]<=a_val)
-	    {
-	      return(a_Sjumps[i-1]);
-	    }else 
-	    {
-	      up=i;
-	      i = ceil((up+low)/2);
-	      }
-	      }else if(a_Stimes[i+1]>=a_val)
-	      {
-	      return(a_Sjumps[i]);
-	      }else 
-	      {
-	      
-	      low=i;
-	      i = ceil((up+low)/2);
-	      }
-	      }*/
       while(found==0&&i<*a_nv-1)
 	{
-	  //if(a_vGrid[i]<=a_y[k]&&a_vGrid[i+1]>a_y[k])
 	  if(a_vGrid[i]>a_y[k])
 	    {
 	      found=1;
@@ -90,8 +52,6 @@ void Interp(double *a_x,double *a_y, int *a_n, double *a_Val, double *a_xGrid, d
       int j0;
       while(found==0&&j<*a_nx-1)
 	{
-	  	  
-	  //if(a_xGrid[j]<=a_x[k]&&a_xGrid[j+1]>a_x[k])
 	  if(a_xGrid[j]>a_x[k])
 	    {
 	      found=1;
@@ -99,23 +59,6 @@ void Interp(double *a_x,double *a_y, int *a_n, double *a_Val, double *a_xGrid, d
 	    }
 	  j++;
 	}
-
-      //printf("%d %d\n",i0,j0);
-      /*
-	# ix0<-max(which(xVals<=x)); iy0<-max(which(yVals<=y))
-	# x0<-xVals[ix0]; x1<-xVals[ix0+1]; y0<-yVals[iy0]; y1<-yVals[iy0+1]
-	# phi00<-fVals[ix0,iy0]; phi01<-fVals[ix0,iy0+1]
-	# phi10<-fVals[ix0+1,iy0]; phi11<-fVals[ix0+1,iy0+1]
-	# d <- as.numeric((y-y0)*(x1-x0)>=(x-x0)*(y1-y0))
-	# phi <- phi00+(x-x0)/(x1-x0)*(d*(phi11-phi01)+(1-d)*(phi10-phi00))+(y-y0)/(y1-y0)*(d*(phi01-phi00)+(1-d)*(phi11-phi10))
-      */
-      
-      /*
-      double psi00=a_Fun[i0+1+*a_nv*j0];
-      double psi01=a_Fun[i0+1+*a_nv*(j0+1)];
-      double psi10=a_Fun[i0+*a_nv*j0];
-      double psi11=a_Fun[i0+1+*a_nv*(j0+1)];
-      */
       
       double phi00=a_Fun[i0+*a_nv*j0];
       double phi10=a_Fun[i0+*a_nv*(j0+1)];
@@ -134,4 +77,79 @@ void Interp(double *a_x,double *a_y, int *a_n, double *a_Val, double *a_xGrid, d
 	}
       
     }
+}
+  
+
+
+
+int Cholesky(double* A, long n){
+  
+  int i,j,k;
+  double sum;
+  
+  /*Cholesky Decomposition!!!*/
+  for (i=0; i<n; i++) {
+	
+	sum = 0;
+	for (k=0; k<=i-1; k++)
+	  sum += A[n*i+k]*A[n*i+k];
+	
+	if(*(A+(n+1)*i)-sum <= 0){//check for rounding errors
+	    //printf("\nERROR: Cholesky Failed!!!\a\n");
+	    exit(1);
+	}else{
+	    A[(n+1)*i] = sqrt(A[(n+1)*i]-sum);
+	}
+	
+	for (j=i+1; j<n; j++) {
+	    for (k=i-1,sum=*(A+n*j+i); k>=0; k--)
+		sum -= *(A+n*i+k) * *(A+n*j+k);
+	    *(A+n*j+i) = sum/(*(A+(n+1)*i));
+	}	
+  }
+  
+  for (i=0; i<n; i++) 
+      for (j=0; j<i; j++) 
+	  *(A+n*j+i)=0; 
+  
+  return(0);
+  
+  
+}
+
+
+int UGauss(double* A,double* b,long n) {
+  
+  int i, j;
+  double sum;
+  
+  *(b+n-1) /= *(A+(n+1)*(n-1));
+  for(i=n-2;i>=0;i--){
+	sum = *(b+i);
+	for(j=i+1;j<n;j++){
+	  sum -= *(A+i+n*j) * *(b+j);
+	}
+	*(b+i) = sum / *(A+(n+1)*i);
+  }
+  
+  return(0);
+  
+}
+
+/// This routine takes an upper triangular matrix but treats it as a lower triangula one...
+int LGauss(double* A,double* b,long n) {
+  
+  int i, j;
+  double sum;
+  
+  for(i=0;i<n;i++){
+	sum = *(b+i);
+	for(j=0;j<i;j++){
+	  sum -= *(A+j+n*i) * *(b+j);
+	}
+	*(b+i) = sum / *(A+(n+1)*i);
+  }
+  
+  return(0);
+  
 }

@@ -2,12 +2,12 @@ Package: HARLEM
 Type: Package
 Title: H Accelerated Residual LifetimE Models
 Version: 1.0
-Depends: survival, copula, statmod
+Depends: survival, copula
 Suggests: parallel
-Date: 2012-12-24
+Date: 2013-08-24
 Author: Luca Pozzi, Marco Carone
 Maintainer: Luca Pozzi <p.luc@stat.berkeley.edu>
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: GPL (>= 3)
 LazyLoad: yes
-Packaged: 2012-12-27 04:51:44 UTC; joejkerr
+Packaged: 2014-02-23 20:25:20 UTC; joejkerr

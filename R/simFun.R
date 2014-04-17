@@ -1,13 +1,10 @@
 dataGenHARLEM<-function(delta=3,tau=100,lambda=Vectorize(function(x)1*((x>=10)&(x<=70))),par=rep(1,2),rate= 0.017,copula= frankCopula(-5),margins=c("beta", "beta"),paramMargins=list(list(shape1 = 20, shape2 =5), list(shape1=5,shape2=7)),nGrid=200){
-
-	require("copula")
 	
 	runif(1)
 	
 	simCop <- mvdc(copula, margins,paramMargins)
 	
 	gridX <- seq(0,tau,length.out=nGrid)
-	#gridX <- gridX[lambda(gridX)!=0]
 	
 	lambdaGrid<-lambda(gridX)
 	

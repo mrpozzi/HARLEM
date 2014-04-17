@@ -1,17 +1,19 @@
-.intFun <- function(f,nodes){
+### Simpson Integration
+.intFun <- function(f, nodes){
 	
 	if(length(f)!=length(nodes))error("Number of nodes different from number of function Values!!!")
 	
 	ab <- range(nodes); m <- length(nodes)
 	h <- (ab[2]-ab[1])/m
 	
+	## Simpson Formula
 	return(h/3*(f[1]+2*sum(f[(1:length(f))[1:length(f)%%2==0]])+4*sum(f[(1:length(f))[1:length(f)%%2==1]])+f[length(f)]))
 	
 	}
 
 	
-	
-.linInt <- function(fVals,xVals,yVals){
+### Linear Interpolation	
+.linInt <- function(fVals, xVals, yVals){
 	
 	nx<-length(xVals); ny<-length(yVals)
 	
