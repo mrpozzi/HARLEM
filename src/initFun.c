@@ -73,10 +73,9 @@ double kaplanM(double a_val, double *a_Stimes, double *a_Sjumps, int a_m)
 
 
 
-
-
 void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
 {
+
     if(*a_n1>1 || *a_n2>1)
     {
 	kdeISE(a_delta, a_ab, a_cd, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, a_N, a_Weights);
@@ -102,7 +101,6 @@ void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, d
 	    a_Q2[i + *a_nv * j] = kde(*a_delta, y, a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt) / (a_xGrid[j] * y);
         }
     }
-
 }
 
 
@@ -128,18 +126,18 @@ void kdeISE(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx,
             double avgSq = 0.0;
             h[0]=a_h1[j];
 
-	    printf("%lf %lf\n",h[0],h[1]);
+	    //printf("%lf %lf\n",h[0],h[1]);
 
 	    double a = a_ab[0] - h[0];
 	    double b = a_ab[1] + h[0];
 	    double stepU1 = (b - a)/((double)*a_N);
             
             /// Simpson Formula in 2D
-	    for(int l=0;l<=*a_N;l++)
-            {
-		for(int k=0;k<=*a_N;k++)
-                {
-
+	    for(int k=0;k<=*a_N;k++)
+	      {
+		for(int l=0;l<=*a_N;l++)
+		  {
+		    
 		    double term1 = kde(*a_delta,c+l*stepU2,a+k*stepU1,*a_n,a_xx,a_vv, h);
 		    //double term1 = kde(*a_delta,*a_tau,c+l*step-(a+k*step)- *a_delta,a+k*step,*a_n,a_xx,a_vv, h);
 		    avgSq += a_Weights[l+(*a_N+1)*k]*term1*term1;
@@ -149,10 +147,9 @@ void kdeISE(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx,
 
             avgSq *= stepU1*stepU2/9.0;
             
-            double loo=kdeLoo(*a_delta,*a_n,a_xx,a_vv,h);
+            double loo = kdeLoo(*a_delta,*a_n,a_xx,a_vv,h);
                         
             ISE = avgSq-2*loo;
-
 	    
             if(i==0 && j==0)
             {
@@ -166,13 +163,12 @@ void kdeISE(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx,
             
         }
     }
-    
 }
 
 
 double kde(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2])
 {
-  
+
   if(a_v <= 0.0) return(0.0);
   if(a_x <= 0.0) return(0.0);
   double x = log(a_x); double y = log(a_v);
@@ -189,13 +185,17 @@ double kde(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double
 
     double z = (x - log(a_xx[i]))/a_h[0];
     double t = (y - log(yy))/a_h[1];
-    
+    //double zz = z*z;
+    //double tt = t*t;
+    double uu = z*z + t*t;
 
-    if((t<1.0) && (t>-1.0) && (z<1.0) && (z>-1.0)) p += (1-(t*t)) * (1-(z*z)); 
+    //if((tt<1.0) && (tt>-1.0) && (zz<1.0) && (zz>-1.0)) p += (1-(t*t)) * (1-(z*z)); 
+    if((uu<1.0) && (uu>-1.0)) p += 1 - uu; 
 
   }
 
-  p /= a_n * (a_h[0] * a_h[1]) * 16/9;
+  //p /= a_n * (a_h[0] * a_h[1]) * 16/9;
+  p /= a_n * (a_h[0] * a_h[1]) * 4/3;
   
   return(p);
 	
@@ -205,7 +205,7 @@ double kde(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double
 double kdeLoo(double a_delta, int a_n, double *a_xx, double *a_vv, double a_h[2])
 {
   
-  double LOO=0.0;
+  double LOO = 0.0;
   
   for (int i=0; i<a_n; i++) 
   {
@@ -221,7 +221,7 @@ double kdeLoo(double a_delta, int a_n, double *a_xx, double *a_vv, double a_h[2]
     for (int j=0; j<a_n; j++) 
     {
       
-      if(i==j)continue;
+      if(i==j) continue;
 
       double yy = a_vv[j]-a_xx[j]-a_delta;
 
@@ -230,14 +230,19 @@ double kdeLoo(double a_delta, int a_n, double *a_xx, double *a_vv, double a_h[2]
 
       double z = (x-log(a_xx[j]))/a_h[0];
       double t = (y-log(yy))/a_h[1];
+      //double zz = z*z;
+      //double tt = t*t;
+      double uu = z*z + t*t;
 
-      if((t<1.0)&&(t>-1.0)&&(z<1.0)&&(z>-1.0)) LOO+=(1-(t*t))*(1-(z*z));
+    //if((tt<1.0) && (tt>-1.0) && (zz<1.0) && (zz>-1.0)) LOO += (1-(t*t)) * (1-(z*z)); 
+    if((uu<1.0) && (uu>-1.0)) LOO += 1 - uu; 
 
     }
 
   }
 	
-  LOO/=a_n*(a_n-1)*(a_h[0]*a_h[1])*16/9;
+  //LOO/=a_n*(a_n-1)*(a_h[0]*a_h[1])*16/9;
+  LOO/=a_n*(a_n-1)*(a_h[0]*a_h[1])*4/3;
 
   return(LOO);
   	

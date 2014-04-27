@@ -21,9 +21,8 @@ initQ<-function(fullData,xGrid,vGrid, deltaStar,tau=100,tol=1e-3,k=10L,N=100L,ve
 	
 	delta <- deltaStar
 	nnn <- as.integer(nrow(obsData))
-	
 	vv <- obsData$v; xx <- obsData$x
-	
+	storage.mode(vv) <- storage.mode(xx) <- "double"
 	nx <- length(xGrid); nv <- length(vGrid)
 	Q2 <- matrix(1.0,nrow=nv,ncol=nx)#*1.0
 	storage.mode(tau) <- "double"
@@ -59,14 +58,13 @@ initQ<-function(fullData,xGrid,vGrid, deltaStar,tau=100,tol=1e-3,k=10L,N=100L,ve
 		m<-1
 		if(verbose)cat("\n")
 		while(!2^m*delta0/(k^m)<tol){
-			
 			deltam <- diff(h1Grid)[1]
 			z <- .C('initQ', a_delta=delta,a_ab=ab, a_cd=cd,a_n=nnn,a_xx=xx,a_vv=vv,a_h1=h1Grid,a_h2=h2Grid,a_n1=n1,a_n2=n2,a_N=N,a_xGrid=xGrid,a_vGrid=vGrid,a_nx=nx,a_nv=nv,a_Q2=Q2, a_hOpt= hOpt, a_Weights=W)
 			hOpt <- z$a_hOpt
 			if(verbose)cat("*")
 			
-			h1Grid <- seq(max(0.5,hOpt[1]-deltam-tol), hOpt[1]+deltam+tol,length.out=k)
-			h2Grid <- seq(max(0.5,hOpt[2]-deltam-tol), hOpt[2]+deltam+tol,length.out=k)
+			h1Grid <- seq(max(0.1,hOpt[1]-deltam-tol), hOpt[1]+deltam+tol,length.out=k)
+			h2Grid <- seq(max(0.1,hOpt[2]-deltam-tol), hOpt[2]+deltam+tol,length.out=k)
 			
 			# cat(m," ")
 			# print(range(h1Grid))
@@ -89,6 +87,7 @@ initQ<-function(fullData,xGrid,vGrid, deltaStar,tau=100,tol=1e-3,k=10L,N=100L,ve
 			storage.mode(h2Grid) <- "double"
 			
 			z <- .C('initQ', a_delta=delta,a_ab=ab, a_cd=cd,a_n=nnn,a_xx=xx,a_vv=vv,a_h1=h1Grid,a_h2=h2Grid,a_n1=n1,a_n2=n2,a_N=N,a_xGrid=xGrid,a_vGrid=vGrid,a_nx=nx,a_nv=nv,a_Q2=Q2, a_hOpt=hOpt, a_Weights=W)
+			
 			
 			}
 		
