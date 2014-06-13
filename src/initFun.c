@@ -73,12 +73,17 @@ double kaplanM(double a_val, double *a_Stimes, double *a_Sjumps, int a_m)
 
 
 
-void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
+//void initQslow(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
+void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
 {
+
+    double ISE = 0.0;
+    double normC = 0.0;
 
     if(*a_n1>1 || *a_n2>1)
     {
-	kdeISE(a_delta, a_ab, a_cd, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, a_N, a_Weights);
+      //kdeISEslow(a_delta, a_ab, a_cd, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, a_N, a_Weights);
+      kdeISE(a_delta, a_tau, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, &ISE, &normC, a_N, a_Weights);
     } else {
 	a_hOpt[0] = *a_h1;
 	a_hOpt[1] = *a_h2;
@@ -87,6 +92,7 @@ void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, d
     {
         for(int j=0;j<*a_nx;j++)
         {
+	  /*
 	    if(i==0 || j==0)
 	    {
 		a_Q2[i + *a_nv * j] = 0.0;
@@ -98,13 +104,151 @@ void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, d
 		a_Q2[i + *a_nv * j]=0.0;
 		continue;
 	    }
-	    a_Q2[i + *a_nv * j] = kde(*a_delta, y, a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt) / (a_xGrid[j] * y);
+	  */
+	    //a_Q2[i + *a_nv * j] = kde_slow(*a_delta, y, a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt) / (a_xGrid[j] * y);
+	    a_Q2[i + *a_nv * j] = kde(*a_delta, *a_tau,a_vGrid[i] - a_xGrid[j], a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt)/normC;
         }
     }
 }
 
+void kdeISE(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt,double *a_ISE, double *a_Norm,int *a_N, double *a_Weights)
+{
+    
+    double a = 0.0;
+    double b = *a_tau - *a_delta;
+    double c = *a_delta;
+    double d = *a_tau;
+    double step = (*a_tau - *a_delta)/((double)*a_N);
 
-void kdeISE(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt, int *a_N, double *a_Weights)
+    
+    double ISE=0.0;
+    
+    for (int i=0; i<*a_n1; i++)
+    {
+        
+        double h[2];
+        h[0]=a_h1[i];
+        
+        for (int j=0; j<*a_n2; j++)
+        {
+            
+            double avgSq = 0.0;
+            double normC = 0.0;
+            
+            h[1]=a_h2[j];
+            
+            /// Simpson Formula in 2D
+	    for(int l=0;l<=*a_N;l++)
+            {
+		for(int k=0;k<=*a_N;k++)
+                {
+
+		    double term1 = kde(*a_delta,*a_tau,c+l*step,a+k*step,*a_n,a_xx,a_vv, h);
+                
+		    normC += a_Weights[l+(*a_N+1)*k]*term1;
+		    avgSq += a_Weights[l+(*a_N+1)*k]*term1*term1;
+                
+		}
+            }
+            normC *= step*step/9.0;
+            avgSq *= step*step/9.0;
+            avgSq/=normC*normC;
+            
+            double loo=kdeLoo(*a_delta,*a_tau,*a_n,a_xx,a_vv,h);
+            
+            loo /= normC;
+            
+            ISE = avgSq-2*loo;
+
+	    
+            if(i==0 && j==0)
+            {
+                *a_ISE=ISE;
+                a_hOpt[0]=h[0]; a_hOpt[1]=h[1];
+                *a_Norm=normC;
+            }else if (ISE<*a_ISE) 
+            {
+                *a_ISE=ISE;
+                a_hOpt[0]=h[0]; a_hOpt[1]=h[1];
+                *a_Norm=normC;
+            }
+            
+        }
+    }
+    
+}
+
+
+double kde(double a_delta,double a_tau, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2])
+{
+  
+  double y = a_v;
+  
+  if((y<a_delta)||(y>a_tau)) return(0);
+  if((a_x<0)||(a_x>a_tau-a_delta)) return(0);
+  
+  double p = 0.0;
+  
+  for (int i=0; i<a_n; i++) 
+  {
+   
+    double yy = a_vv[i] - a_xx[i];
+    double t = (y-yy)/a_h[0];
+    double z = (a_x-a_xx[i])/a_h[1];
+
+    if((t<1.0)&&(t>-1.0)&&(z<1.0)&&(z>-1.0)) p+=(1-(t*t))*(1-(z*z)); 
+
+  }
+
+  p /= a_n*(a_h[0]*a_h[1])*16/9;
+  
+  return(p);
+	
+}
+
+
+double kdeLoo(double a_delta,double a_tau, int a_n, double *a_xx, double *a_vv, double a_h[2])
+{
+  
+  double LOO=0.0;
+  
+  for (int i=0; i<a_n; i++) 
+  {
+  
+    double y=a_vv[i]-a_xx[i];
+    double x=a_xx[i];
+    
+    if((y<a_delta)||(y>a_tau)) continue;
+    if((x<0.0)||(x>a_tau-a_delta)) continue;
+    
+    for (int j=0; j<a_n; j++) 
+    {
+      
+      if(i==j)continue;
+
+      double yy=a_vv[j]-a_xx[j];
+
+      if((yy<a_delta)||(yy>a_tau)) continue;
+      if((a_xx[j]<0.0)||(a_xx[j]>a_tau-a_delta)) continue;
+
+      double t=(y-yy)/a_h[0];
+      double z=(x-a_xx[j])/a_h[1];
+
+      if((t<1.0)&&(t>-1.0)&&(z<1.0)&&(z>-1.0)) LOO+=(1-(t*t))*(1-(z*z));
+
+    }
+
+  }
+	
+  LOO/=a_n*(a_n-1)*(a_h[0]*a_h[1])*16/9;
+
+  return(LOO);
+  	
+}
+
+
+
+void kdeISEslow(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt, int *a_N, double *a_Weights)
 {
     
     double ISE = 0.0;
@@ -138,7 +282,7 @@ void kdeISE(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx,
 		for(int l=0;l<=*a_N;l++)
 		  {
 		    
-		    double term1 = kde(*a_delta,c+l*stepU2,a+k*stepU1,*a_n,a_xx,a_vv, h);
+		    double term1 = kde_slow(*a_delta,c+l*stepU2,a+k*stepU1,*a_n,a_xx,a_vv, h);
 		    //double term1 = kde(*a_delta,*a_tau,c+l*step-(a+k*step)- *a_delta,a+k*step,*a_n,a_xx,a_vv, h);
 		    avgSq += a_Weights[l+(*a_N+1)*k]*term1*term1;
 		    //kde(double a_delta,double a_tau, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2])
@@ -147,7 +291,7 @@ void kdeISE(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx,
 
             avgSq *= stepU1*stepU2/9.0;
             
-            double loo = kdeLoo(*a_delta,*a_n,a_xx,a_vv,h);
+            double loo = kdeLoo_slow(*a_delta,*a_n,a_xx,a_vv,h);
                         
             ISE = avgSq-2*loo;
 	    
@@ -166,7 +310,7 @@ void kdeISE(double *a_delta, double *a_ab, double *a_cd, int *a_n, double *a_xx,
 }
 
 
-double kde(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2])
+double kde_slow(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2])
 {
 
   if(a_v <= 0.0) return(0.0);
@@ -202,7 +346,7 @@ double kde(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double
 }
 
 
-double kdeLoo(double a_delta, int a_n, double *a_xx, double *a_vv, double a_h[2])
+double kdeLoo_slow(double a_delta, int a_n, double *a_xx, double *a_vv, double a_h[2])
 {
   
   double LOO = 0.0;

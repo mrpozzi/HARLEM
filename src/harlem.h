@@ -54,19 +54,22 @@ double kaplanM(double a_val,double *a_Stimes, double *a_Sjumps,int a_m);
 
 
 /// initializes Q2
-//void initQ(int  *a_Order, double *a_Nodes, double *a_Weights,double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt);
-void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights);
+void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights);
+//void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights);
 
 
 /// Kernel Density Estimator
-double kde(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2]);
+double kde(double a_delta,double a_tau, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2]);
+double kde_slow(double a_delta, double a_v, double a_x, int a_n, double *a_xx, double *a_vv, double a_h[2]);
 
 /// Leave One Out approximation of the expectation of the KDE estimator
-double kdeLoo(double a_delta, int a_n, double *a_xx, double *a_vv, double a_h[2]);
+double kdeLoo(double a_delta,double a_tau, int a_n, double *a_xx, double *a_vv, double a_h[2]);
+double kdeLoo_slow(double a_delta, int a_n, double *a_xx, double *a_vv, double a_h[2]);
 
 /// Integrated Squared Error for the KDE estimator
-//void kdeISE(int  *a_Order, double *a_Nodes, double *a_Weights,double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt,double *a_ISE, double *a_Norm);
-void kdeISE(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt,int *a_N, double *a_Weights);
+void kdeISE(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt,double *a_ISE, double *a_Norm,int *a_N, double *a_Weights);
+void kdeISEslow(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt,int *a_N, double *a_Weights);
+
 
 
 

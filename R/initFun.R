@@ -59,7 +59,8 @@ initQ<-function(fullData,xGrid,vGrid, deltaStar,tau=100,tol=1e-3,k=10L,N=100L,ve
 		if(verbose)cat("\n")
 		while(!2^m*delta0/(k^m)<tol){
 			deltam <- diff(h1Grid)[1]
-			z <- .C('initQ', a_delta=delta,a_ab=ab, a_cd=cd,a_n=nnn,a_xx=xx,a_vv=vv,a_h1=h1Grid,a_h2=h2Grid,a_n1=n1,a_n2=n2,a_N=N,a_xGrid=xGrid,a_vGrid=vGrid,a_nx=nx,a_nv=nv,a_Q2=Q2, a_hOpt= hOpt, a_Weights=W)
+			z <- .C('initQ', a_delta=delta,a_tau=tau,a_n=nnn,a_xx=xx,a_vv=vv,a_h1=h1Grid,a_h2=h2Grid,a_n1=n1,a_n2=n2,a_N=N,a_xGrid=xGrid,a_vGrid=vGrid,a_nx=nx,a_nv=nv,a_Q2=Q2, a_hOpt= hOpt, a_Weights=W)
+			# z <- .C('initQ', a_delta=delta,a_ab=ab, a_cd=cd,a_n=nnn,a_xx=xx,a_vv=vv,a_h1=h1Grid,a_h2=h2Grid,a_n1=n1,a_n2=n2,a_N=N,a_xGrid=xGrid,a_vGrid=vGrid,a_nx=nx,a_nv=nv,a_Q2=Q2, a_hOpt= hOpt, a_Weights=W)
 			hOpt <- z$a_hOpt
 			if(verbose)cat("*")
 			
