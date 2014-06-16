@@ -73,8 +73,7 @@ double kaplanM(double a_val, double *a_Stimes, double *a_Sjumps, int a_m)
 
 
 
-//void initQslow(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
-void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
+void initQslow(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
 {
 
     double ISE = 0.0;
@@ -82,8 +81,7 @@ void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, 
 
     if(*a_n1>1 || *a_n2>1)
     {
-      //kdeISEslow(a_delta, a_ab, a_cd, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, a_N, a_Weights);
-      kdeISE(a_delta, a_tau, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, &ISE, &normC, a_N, a_Weights);
+      kdeISEslow(a_delta, a_ab, a_cd, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, a_N, a_Weights);
     } else {
 	a_hOpt[0] = *a_h1;
 	a_hOpt[1] = *a_h2;
@@ -92,7 +90,7 @@ void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, 
     {
         for(int j=0;j<*a_nx;j++)
         {
-	  /*
+	  
 	    if(i==0 || j==0)
 	    {
 		a_Q2[i + *a_nv * j] = 0.0;
@@ -104,12 +102,34 @@ void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, 
 		a_Q2[i + *a_nv * j]=0.0;
 		continue;
 	    }
-	  */
-	    //a_Q2[i + *a_nv * j] = kde_slow(*a_delta, y, a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt) / (a_xGrid[j] * y);
-	    a_Q2[i + *a_nv * j] = kde(*a_delta, *a_tau,a_vGrid[i] - a_xGrid[j], a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt)/normC;
+	    a_Q2[i + *a_nv * j] = kde_slow(*a_delta, y, a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt) / (a_xGrid[j] * y);
         }
     }
 }
+
+
+void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights)
+{
+
+    double ISE = 0.0;
+    double normC = 0.0;
+
+    if(*a_n1>1 || *a_n2>1)
+    {
+      kdeISE(a_delta, a_tau, a_n, a_xx, a_vv, a_h1, a_h2, a_n1, a_n2, a_hOpt, &ISE, &normC, a_N, a_Weights);
+    } else {
+	a_hOpt[0] = *a_h1;
+	a_hOpt[1] = *a_h2;
+    }
+    for(int i=0; i<*a_nv;i++)
+    {
+        for(int j=0;j<*a_nx;j++)
+        {
+	  a_Q2[i + *a_nv * j] = kde(*a_delta, *a_tau,a_vGrid[i] - a_xGrid[j], a_xGrid[j], *a_n, a_xx, a_vv, a_hOpt)/normC;
+        }
+    }
+}
+
 
 void kdeISE(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,double *a_hOpt,double *a_ISE, double *a_Norm,int *a_N, double *a_Weights)
 {

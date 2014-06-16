@@ -55,7 +55,7 @@ double kaplanM(double a_val,double *a_Stimes, double *a_Sjumps,int a_m);
 
 /// initializes Q2
 void initQ(double *a_delta,double *a_tau, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights);
-//void initQ(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights);
+void initQslow(double *a_delta,double *a_ab, double *a_cd, int *a_n, double *a_xx, double *a_vv, double *a_h1, double *a_h2, int *a_n1, int *a_n2,int *a_N, double *a_xGrid, double *a_vGrid, int *a_nx, int *a_nv, double *a_Q2,double *a_hOpt, double *a_Weights);
 
 
 /// Kernel Density Estimator
