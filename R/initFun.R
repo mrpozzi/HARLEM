@@ -64,8 +64,8 @@ initQ<-function(fullData,xGrid,vGrid, deltaStar,tau=100,tol=1e-3,k=10L,N=100L,ve
 			hOpt <- z$a_hOpt
 			if(verbose)cat("*")
 			
-			h1Grid <- seq(max(0.1,hOpt[1]-deltam-tol), hOpt[1]+deltam+tol,length.out=k)
-			h2Grid <- seq(max(0.1,hOpt[2]-deltam-tol), hOpt[2]+deltam+tol,length.out=k)
+			h1Grid <- seq(max(0.05,hOpt[1]-deltam-tol), hOpt[1]+deltam+tol,length.out=k)
+			h2Grid <- seq(max(0.05,hOpt[2]-deltam-tol), hOpt[2]+deltam+tol,length.out=k)
 			
 			# cat(m," ")
 			# print(range(h1Grid))
