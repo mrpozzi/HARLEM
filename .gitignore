@@ -1,1 +1,6 @@
 .DS_Store
+.Rproj.user
+.Rbuildignore
+*.Rproj
+*.so
+*.o

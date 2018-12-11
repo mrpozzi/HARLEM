@@ -103,6 +103,10 @@ initQ<-function(fullData,xGrid,vGrid, deltaStar,tau=100,tol=1e-3,k=10L,N=100L,ve
 	
 	normC <- -1.0
 	z <- .C('Norm', a_normC=normC,a_xGrid=xGrid,a_vGrid=vGrid,a_nx=nx,a_nv=nv,a_Fun=Q2)
+	if(verbose){
+	  cat("Normalization Constant: ")
+	  print(z$a_normC)
+	  }
 	Q2 <- Q2/z$a_normC
 	
 	
